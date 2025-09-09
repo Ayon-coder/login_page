@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBh3qpbVYSmkVNDiporY3JqPP1t0ZktbHk",
@@ -13,37 +13,36 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getDatabase(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   const loggedInUserId = localStorage.getItem("loggedInUserId");
 
-  if (loggedInUserId) {
-    console.log(user);
+  if (loggedInUserId && user) {
+    try {
+      const docRef = doc(db, "users", loggedInUserId);
+      const docSnap = await getDoc(docRef);
 
-    const dbRef = ref(db);
-    get(child(dbRef, `users/${loggedInUserId}`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const userData = snapshot.val();
-          document.getElementById("loggedUserFName").innerText = userData.firstName;
-          document.getElementById("loggedUserLName").innerText = userData.lastName;
-          document.getElementById("loggedUserEmail").innerText = userData.email;
-        } else {
-          console.log("No data found for this user ID");
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting user data:", error);
-      });
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        document.getElementById("loggedUserFName").innerText = userData.firstName;
+        document.getElementById("loggedUserLName").innerText = userData.lastName;
+        document.getElementById("loggedUserEmail").innerText = userData.email;
+      } else {
+        console.log("No Firestore document found for this user ID");
+      }
+    } catch (error) {
+      console.error("Error getting user data:", error);
+    }
   } else {
-    console.log("User ID not found in local storage");
+    console.log("No logged in user, redirecting...");
+    window.location.href = "index.html";
   }
 });
 
+// Logout
 const logoutButton = document.getElementById("logout");
-
 logoutButton.addEventListener("click", () => {
   localStorage.removeItem("loggedInUserId");
   signOut(auth)
