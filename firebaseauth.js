@@ -3,12 +3,7 @@ import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} fro
 import {getFirestore, setDoc, doc} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js"
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBh3qpbVYSmkVNDiporY3JqPP1t0ZktbHk",
-    authDomain: "login-form-dbf3f.firebaseapp.com",
-    projectId: "login-form-dbf3f",
-    storageBucket: "login-form-dbf3f.appspot.com",
-    messagingSenderId: "296020257664",
-    appId: "1:296020257664:web:a7dab575a69ad5066fef65"
+//firebase api
 };
 
 // Initialize Firebase
@@ -97,3 +92,4 @@ signIn.addEventListener('click', (event)=>{
         }
     });
 });
+
